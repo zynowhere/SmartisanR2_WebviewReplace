@@ -6,6 +6,20 @@
 
 ---
 
+
+> **注意：本仓库不包含 WebView APK 本体。**
+>
+> 约 197 MB 的 `webview.apk` 是二进制文件，不适合放进 git。仓库里只有模块的**文本部分**（`module.prop`、`update-binary`、`updater-script`）。
+>
+> - 需要 APK 请去 [JonaNorman/WebViewPackage](https://github.com/JonaNorman/WebViewPackage/releases/tag/android) 下载 `134.0.6998.39_min26_arm64.apk`
+> - 想要**其他版本**（113 / 124 / 128 / 134 等，各有 arm32 / arm64 / x86）也在同一个 Release 页
+> - 选版本注意：包名必须是 `com.android.webview`，架构要 arm64，minSdk 不能高于你的系统 SDK
+> - 打包方法见 [BUILD.md](BUILD.md)
+>
+> 不想自己打包的，直接下 [Releases](../../releases) 里的成品。
+
+---
+
 ## 为什么需要这个
 
 坚果 R2 的 Smartisan OS 把 WebView provider 白名单锁死在 `com.android.webview` 一个包上：
