@@ -19,7 +19,6 @@
 
 - 依赖 `??=`（逻辑空赋值，Chrome 85+）的脚本直接 `SyntaxError`
 - 页面永远不发 ready 事件，只能超时
-- dsh-go 的「伙伴小屋」因此稳定 timeout 约 40 秒，并给出误导性提示「可以重新导入素材包」
 
 ## 为什么这样替换能生效
 
@@ -45,7 +44,6 @@ Valid package com.android.webview (versionName: 134.0.6998.39, versionCode: 6998
 
 替换后：
 - 依赖新内核的页面可以正常打开
-- dsh-go 伙伴小屋正常进入（原始故障解决）
 
 > 注：系统「设置 → 应用管理」里可能仍显示 75，那是 Smartisan 设置应用的缓存未刷新，以 `dumpsys webviewupdate` 为准。
 
