@@ -1,0 +1,6 @@
+id=webview_upgrade
+name=WebView 升级 (com.android.webview 134)
+version=v1.0
+versionCode=1
+author=built-for-DT2002C
+description=用 AOSP 官方 com.android.webview 134.0.6998.39 (arm64) 以 systemless 方式覆盖 /product/app/webview。原系统 75.0.3770.156 保持不动，禁用或删除本模块即可回滚。
