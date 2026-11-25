@@ -1,78 +1,55 @@
-# 如何构建
+# 如何自行构建模块包
 
-本仓库只保存模块的**文本部分**，不包含 WebView APK 本体。
+本仓库仅保存模块的脚本与说明文件，不包含约 197 MB 的二进制 `webview.apk`。如需自行打包或替换为其他版本，请按以下步骤操作。
 
-## 目录说明
+## 1. 仓库目录结构
 
+```text
+module.prop                                      模块描述信息
+customize.sh                                     刷入时部署 oat 遮蔽与回滚守卫脚本
+service.sh                                       开机自动将 WebView 同步安装至 /data/app
+uninstall.sh                                     卸载模块时清理副本、缓存与守卫脚本
+META-INF/com/google/android/update-binary        Magisk 标准安装入口
+META-INF/com/google/android/updater-script       内容为 "#MAGISK"
+system/product/app/webview/oat/.replace          遮蔽原厂 75 预编译 oat 目录
+system/product/app/webview/webview.apk           ← 自行下载放入此处（仓库不包含）
+README.txt                                       包内简要说明
 ```
-module.prop                              模块描述（Magisk 读取）
-META-INF/com/google/android/update-binary 安装入口脚本
-META-INF/com/google/android/updater-script 内容仅 "#MAGISK"
-system/product/app/webview/webview.apk   ← 这里放 WebView APK（本仓库不提供）
-```
 
-## 需要你自己下载的部分
+## 2. 下载 WebView APK
 
-`system/product/app/webview/webview.apk` **不在本仓库**，因为它是约 197 MB 的二进制文件，不适合放进 git。
+前往 [JonaNorman/WebViewPackage (`android` tag)](https://github.com/JonaNorman/WebViewPackage/releases/tag/android) 下载：
 
-请从下面下载：
+- 默认使用版本：`134.0.6998.39_min26_arm64.apk`
+- 预期 SHA256：`da886ba4b6ccb9883b8f88d2c999c58e6b15363faa7008c40be4bc1459ca341a`
 
-- **仓库**：<https://github.com/JonaNorman/WebViewPackage>
-- **Release 页**：<https://github.com/JonaNorman/WebViewPackage/releases/tag/android>
-- **本模块使用的版本**：`134.0.6998.39_min26_arm64.apk`
+如需更换该页面下的其他版本（如 `113`、`124`、`128` 等），请务必确认：
 
-要求：
-
-| 项 | 值 |
+| 检查项 | 要求 |
 |---|---|
-| 包名 | 必须是 `com.android.webview`（不是 Google 版） |
-| 架构 | `arm64`（坚果 R2 为 arm64-v8a） |
-| minSdk | 26（本机为 30，满足） |
+| 包名 | 必须是 `com.android.webview`（`android` tag；不能用 `google` tag 的 `com.google.android.webview`） |
+| 架构 | `arm64`（坚果 R2 为 `arm64-v8a`） |
+| `minSdk` | 不高于 `30`（Android 11） |
 
-下载后校验（应为）：
+## 3. 打包成 Magisk 模块 ZIP
 
-```
-da886ba4b6ccb9883b8f88d2c999c58e6b15363faa7008c40be4bc1459ca341a
-```
-
-## 其他版本
-
-`android` tag 下还提供 113、124、128、134 等多个版本，各版本均有 arm32 / arm64 / x86 三种架构。想换版本时注意：
-
-1. **必须是 `com.android.webview` 包名**——`com.google.android.webview` 装了也不会被系统使用，因为 ROM 白名单只认前者
-2. **minSdk 不能高于你的系统 SDK**（坚果 R2 是 30）
-3. 架构要匹配
-
-## 打包成模块
+所有脚本文件必须保持 **UTF-8 无 BOM + LF (`\n`) 换行符**（切勿转为 Windows `CRLF`）：
 
 ```sh
-# 在仓库根目录
-mkdir -p system/product/app/webview
-cp <你下载的>134.0.6998.39_min26_arm64.apk system/product/app/webview/webview.apk
+mkdir -p system/product/app/webview/oat
+: > system/product/app/webview/oat/.replace
+cp /path/to/134.0.6998.39_min26_arm64.apk system/product/app/webview/webview.apk
 
-zip -r webview_upgrade_134.zip \
+zip -r -9 webview_upgrade_134_v1.1.zip \
     module.prop \
+    customize.sh \
+    service.sh \
+    uninstall.sh \
+    README.txt \
     META-INF/ \
-    system/ \
-    README.md
+    system/
 ```
 
-或用任意 zip 工具，**关键要求**：
-
-- `module.prop` 必须在 **zip 根目录**，且是**文件**不是目录
-- `META-INF/com/google/android/update-binary` 必须存在
-- `system/` 必须在 zip 根目录下
-
-## 校验成品
-
-```sh
-unzip -l webview_upgrade_134.zip
-sha256sum webview_upgrade_134.zip
-```
-
-本仓库 Release 中的成品：
-
-```
-大小   : 97,394,847 字节 (92.9 MB)
-SHA256 : e7e5b515e564f1d267d4af57e6a79237d5f2eb957ce779cb3e7f447a4ed599ad
-```
+打包检查要点：
+- `module.prop`、`customize.sh`、`service.sh`、`uninstall.sh`、`META-INF/`、`system/` 必须直接位于 **ZIP 根目录**（外层不能多套一层文件夹）。
+- 所有 `.sh` 与 `update-binary` 换行符必须为 `LF`。
